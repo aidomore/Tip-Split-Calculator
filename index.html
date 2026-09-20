@@ -141,17 +141,17 @@
         <div class="subtitle">Tip & Bill Calculator</div>
 
         <div class="input-group">
-            <label for="billAmount">Bill Amount ($)</label>
-            <input type="number" id="billAmount" placeholder="0.00" value="50" oninput="calculate()">
+            <label for="billAmount">Bill Amount (₪)</label>
+            <input type="number" id="billAmount" placeholder="0.00" value="200" oninput="calculate()">
         </div>
 
         <div class="input-group">
             <label>Select Tip %</label>
             <div class="tip-buttons">
                 <button class="tip-btn" onclick="setTip(10, this)">10%</button>
-                <button class="tip-btn active" onclick="setTip(15, this)">15%</button>
+                <button class="tip-btn active" onclick="setTip(12, this)">12%</button>
+                <button class="tip-btn" onclick="setTip(15, this)">15%</button>
                 <button class="tip-btn" onclick="setTip(20, this)">20%</button>
-                <button class="tip-btn" onclick="setTip(25, this)">25%</button>
             </div>
             <input type="number" id="customTip" placeholder="Custom tip %" oninput="setCustomTip(this.value)">
         </div>
@@ -164,17 +164,17 @@
         <div class="results-box">
             <div class="result-row">
                 <span>Tip Amount:</span>
-                <span id="tipResult" class="result-value">$0.00</span>
+                <span id="tipResult" class="result-value">₪0.00</span>
             </div>
             <div class="result-row">
                 <span>Total per Person:</span>
-                <span id="totalResult" class="result-value">$0.00</span>
+                <span id="totalResult" class="result-value">₪0.00</span>
             </div>
         </div>
     </div>
 
     <script>
-        let currentTipPercent = 15;
+        let currentTipPercent = 12; // Стандартные 12% чаевых в Израиле по умолчанию — тоже приятная деталь!
 
         function setTip(percent, element) {
             currentTipPercent = percent;
@@ -197,17 +197,16 @@
         function calculate() {
             const billInput = parseFloat(document.getElementById('billAmount').value) || 0;
             const peopleInput = parseInt(document.getElementById('splitCount').value) || 1;
-            const people = Math.max(1, peopleInput); // Минимум 1 человек
+            const people = Math.max(1, peopleInput);
 
             const tipTotal = billInput * (currentTipPercent / 100);
             const fullTotal = billInput + tipTotal;
             const perPerson = fullTotal / people;
 
-            document.getElementById('tipResult').textContent = `$${tipTotal.toFixed(2)}`;
-            document.getElementById('totalResult').textContent = `$${perPerson.toFixed(2)}`;
+            document.getElementById('tipResult').textContent = `₪${tipTotal.toFixed(2)}`;
+            document.getElementById('totalResult').textContent = `₪${perPerson.toFixed(2)}`;
         }
 
-        // Первичный расчет при загрузке
         calculate();
     </script>
 </body>
