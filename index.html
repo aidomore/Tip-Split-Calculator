@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AiDoMore Tip & Split Calculator</title>
+    <style>
+        :root {
+            --bg-color: #f7f6f2;
+            --card-bg: #ffffff;
+            --text-main: #2c2c2c;
+            --text-muted: #7d7d7d;
+            --accent: #6b705c; /* оливково-шалфейный */
+            --accent-hover: #555848;
+            --border-color: #e5e3db;
+            --result-bg: #f0eee6;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .calc-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 36px;
+            width: 340px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
+        }
+
+        .title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+            letter-spacing: -0.5px;
+            text-align: center;
+        }
+
+        .subtitle {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 24px;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .input-group {
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            box-sizing: border-box;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input[type="number"]:focus {
+            border-color: var(--accent);
+        }
+
+        .tip-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 6px;
+            margin-bottom: 18px;
+        }
+
+        .tip-btn {
+            background: none;
+            border: 1px solid var(--border-color);
+            padding: 8px 0;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            color: var(--text-main);
+            transition: all 0.2s ease;
+        }
+
+        .tip-btn.active {
+            border-color: var(--accent);
+            background-color: var(--accent);
+            color: white;
+            font-weight: 500;
+        }
+
+        .results-box {
+            background-color: var(--result-bg);
+            border-radius: 10px;
+            padding: 16px;
+            margin-top: 24px;
+        }
+
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+        }
+
+        .result-row:last-child {
+            margin-bottom: 0;
+            padding-top: 8px;
+            border-top: 1px solid var(--border-color);
+            font-weight: 600;
+            font-size: 1.05rem;
+        }
+
+        .result-value {
+            color: var(--accent);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="calc-card">
+        <div class="title">AiDoMore Splitter</div>
+        <div class="subtitle">Tip & Bill Calculator</div>
+
+        <div class="input-group">
+            <label for="billAmount">Bill Amount ($)</label>
+            <input type="number" id="billAmount" placeholder="0.00" value="50" oninput="calculate()">
+        </div>
+
+        <div class="input-group">
+            <label>Select Tip %</label>
+            <div class="tip-buttons">
+                <button class="tip-btn" onclick="setTip(10, this)">10%</button>
+                <button class="tip-btn active" onclick="setTip(15, this)">15%</button>
+                <button class="tip-btn" onclick="setTip(20, this)">20%</button>
+                <button class="tip-btn" onclick="setTip(25, this)">25%</button>
+            </div>
+            <input type="number" id="customTip" placeholder="Custom tip %" oninput="setCustomTip(this.value)">
+        </div>
+
+        <div class="input-group">
+            <label for="splitCount">Number of People</label>
+            <input type="number" id="splitCount" min="1" value="2" oninput="calculate()">
+        </div>
+
+        <div class="results-box">
+            <div class="result-row">
+                <span>Tip Amount:</span>
+                <span id="tipResult" class="result-value">$0.00</span>
+            </div>
+            <div class="result-row">
+                <span>Total per Person:</span>
+                <span id="totalResult" class="result-value">$0.00</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentTipPercent = 15;
+
+        function setTip(percent, element) {
+            currentTipPercent = percent;
+            document.getElementById('customTip').value = '';
+            
+            document.querySelectorAll('.tip-btn').forEach(btn => btn.classList.remove('active'));
+            if (element) element.classList.add('active');
+            
+            calculate();
+        }
+
+        function setCustomTip(val) {
+            if (val !== '') {
+                currentTipPercent = parseFloat(val) || 0;
+                document.querySelectorAll('.tip-btn').forEach(btn => btn.classList.remove('active'));
+            }
+            calculate();
+        }
+
+        function calculate() {
+            const billInput = parseFloat(document.getElementById('billAmount').value) || 0;
+            const peopleInput = parseInt(document.getElementById('splitCount').value) || 1;
+            const people = Math.max(1, peopleInput); // Минимум 1 человек
+
+            const tipTotal = billInput * (currentTipPercent / 100);
+            const fullTotal = billInput + tipTotal;
+            const perPerson = fullTotal / people;
+
+            document.getElementById('tipResult').textContent = `$${tipTotal.toFixed(2)}`;
+            document.getElementById('totalResult').textContent = `$${perPerson.toFixed(2)}`;
+        }
+
+        // Первичный расчет при загрузке
+        calculate();
+    </script>
+</body>
+</html>
